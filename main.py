@@ -1,15 +1,8 @@
 # Import necessary libraries and modules
 import numpy as np
 
-# Define input data for the ship
-ship_characteristics = {
-    'ship_type': 'Container Ship',
-    'age_years': 10,
-    'size_meters': {'length': 200, 'width': 30, 'draft': 12},
-    'gross_tonnage': 50000,
-    'engine_power_hp': 40000,
-    'cargo_capacity_tons': 25000
-}
+
+import streamlit as st
 
 condition_and_maintenance = {
     'inspection_report': 'Good condition with recent maintenance.',
@@ -46,17 +39,17 @@ ownership_history = {
 
 # Define valuation methodology and weights
 valuation_weights = {
-    'age_weight': 0.1,
-    'size_weight': 0.1,
-    'condition_weight': 0.1,
-    'market_data_weight': 0.15,
-    'location_weight': 0.05,
-    'economic_factors_weight': 0.05,
-    'compliance_weight': 0.05,
-    'special_features_weight': 0.1,
-    'ownership_history_weight': 0.1,
-    'risk_assessment_weight': 0.1,
-    'discount_rate': 0.08  # Used for discounted cash flow (DCF) valuation
+    'age_weight': 0.001,
+    'size_weight': 0.001,
+    'condition_weight': 0.001,
+    'market_data_weight': 0.0015,
+    'location_weight': 0.005,
+    'economic_factors_weight': 0.005,
+    'compliance_weight': 0.005,
+    'special_features_weight': 0.001,
+    'ownership_history_weight': 0.001,
+    'risk_assessment_weight': 0.001,
+    'discount_rate': 0.008  # Used for discounted cash flow (DCF) valuation
 }
 
 
@@ -138,10 +131,42 @@ def value_ship(ship_characteristics, condition_and_maintenance, market_data,
     return estimated_value
 
 
-# Call the valuation function and print the estimated value
-estimated_value = value_ship(ship_characteristics, condition_and_maintenance, market_data,
+
+
+#print(f"The estimated value of the ship is: ${estimated_value:,.2f}")
+
+# Define Streamlit app
+def main():
+    st.title('Ship Valuation App')
+
+    # Input widgets for ship_characteristics
+    st.sidebar.header('Ship Characteristics Input')
+    ship_type = st.sidebar.selectbox('Ship Type', ['Container Ship', 'Tanker', 'Bulk Carrier', 'Fishing Vessel'])
+    age_years = st.sidebar.number_input('Age (years)', value=10, min_value=1, step=1)
+    length = st.sidebar.number_input('Length (meters)', value=200, min_value=1, step=1)
+    width = st.sidebar.number_input('Width (meters)', value=30, min_value=1, step=1)
+    draft = st.sidebar.number_input('Draft (meters)', value=12, min_value=1, step=1)
+    gross_tonnage = st.sidebar.number_input('Gross Tonnage', value=50000, min_value=1, step=1)
+    engine_power_hp = st.sidebar.number_input('Engine Power (HP)', value=40000, min_value=1, step=1)
+    cargo_capacity_tons = st.sidebar.number_input('Cargo Capacity (tons)', value=25000, min_value=1, step=1)
+
+    # Assigning inputs to ship_characteristics dictionary
+    ship_characteristics = {
+        'ship_type': ship_type,
+        'age_years': age_years,
+        'size_meters': {'length': length, 'width': width, 'draft': draft},
+        'gross_tonnage': gross_tonnage,
+        'engine_power_hp': engine_power_hp,
+        'cargo_capacity_tons': cargo_capacity_tons
+    }
+
+
+    if st.button('Calculate Valuation'):
+        ship_valuation = value_ship(ship_characteristics, condition_and_maintenance, market_data,
                              geographic_location, economic_factors, regulatory_compliance,
                              special_features, ownership_history, valuation_weights)
+        st.success(f"The estimated value of the ship is ${ship_valuation:,.2f}.")
 
-print(f"The estimated value of the ship is: ${estimated_value:,.2f}")
 
+if __name__ == "__main__":
+    main()
