@@ -1,7 +1,6 @@
 # Import necessary libraries and modules
 import numpy as np
 
-
 import streamlit as st
 
 condition_and_maintenance = {
@@ -37,21 +36,22 @@ ownership_history = {
     'notable_events': 'No major incidents in the ship’s history.'
 }
 
-# Define valuation methodology and weights
-valuation_weights = {
-    'age_weight': 0.001,
-    'size_weight': 0.001,
-    'condition_weight': 0.001,
-    'market_data_weight': 0.0015,
-    'location_weight': 0.005,
-    'economic_factors_weight': 0.005,
-    'compliance_weight': 0.005,
-    'special_features_weight': 0.001,
-    'ownership_history_weight': 0.001,
-    'risk_assessment_weight': 0.001,
-    'discount_rate': 0.008  # Used for discounted cash flow (DCF) valuation
-}
 
+# # Define valuation methodology and weights
+# valuation_weights = {
+#     'age_weight': 0.0001,
+#     'size_weight': 0.0001,
+#     'condition_weight': 0.0001,
+#     'market_data_weight': 0.00015,
+#     'location_weight': 0.0005,
+#     'economic_factors_weight': 0.0005,
+#     'compliance_weight': 0.0005,
+#     'special_features_weight': 0.0001,
+#     'ownership_history_weight': 0.0001,
+#     'risk_assessment_weight': 0.0001,
+#     'discount_rate': 0.0008  # Used for discounted cash flow (DCF) valuation
+# }
+#
 
 # Define valuation algorithm
 def value_ship(ship_characteristics, condition_and_maintenance, market_data,
@@ -131,40 +131,105 @@ def value_ship(ship_characteristics, condition_and_maintenance, market_data,
     return estimated_value
 
 
-
-
-#print(f"The estimated value of the ship is: ${estimated_value:,.2f}")
+# print(f"The estimated value of the ship is: ${estimated_value:,.2f}")
 
 # Define Streamlit app
 def main():
     st.title('Ship Valuation App')
 
-    # Input widgets for ship_characteristics
-    st.sidebar.header('Ship Characteristics Input')
-    ship_type = st.sidebar.selectbox('Ship Type', ['Container Ship', 'Tanker', 'Bulk Carrier', 'Fishing Vessel'])
-    age_years = st.sidebar.number_input('Age (years)', value=10, min_value=1, step=1)
-    length = st.sidebar.number_input('Length (meters)', value=200, min_value=1, step=1)
-    width = st.sidebar.number_input('Width (meters)', value=30, min_value=1, step=1)
-    draft = st.sidebar.number_input('Draft (meters)', value=12, min_value=1, step=1)
-    gross_tonnage = st.sidebar.number_input('Gross Tonnage', value=50000, min_value=1, step=1)
-    engine_power_hp = st.sidebar.number_input('Engine Power (HP)', value=40000, min_value=1, step=1)
-    cargo_capacity_tons = st.sidebar.number_input('Cargo Capacity (tons)', value=25000, min_value=1, step=1)
-
-    # Assigning inputs to ship_characteristics dictionary
     ship_characteristics = {
-        'ship_type': ship_type,
-        'age_years': age_years,
-        'size_meters': {'length': length, 'width': width, 'draft': draft},
-        'gross_tonnage': gross_tonnage,
-        'engine_power_hp': engine_power_hp,
-        'cargo_capacity_tons': cargo_capacity_tons
+        'ship_type': 'Container Ship',
+        'age_years': 10,
+        'size_meters': {'length': 200, 'width': 30, 'draft': 12},
+        'gross_tonnage': 50000,
+        'engine_power_hp': 40000,
+        'cargo_capacity_tons': 25000
     }
 
+    # Default values for valuation_weights
+    valuation_weights = {
+        'age_weight': 0.0001,
+        'size_weight': 0.0001,
+        'condition_weight': 0.0001,
+        'market_data_weight': 0.00015,
+        'location_weight': 0.0005,
+        'economic_factors_weight': 0.0005,
+        'compliance_weight': 0.0005,
+        'special_features_weight': 0.0001,
+        'ownership_history_weight': 0.0001,
+        'risk_assessment_weight': 0.0001,
+        'discount_rate': 0.0008
+    }
 
+    # Ship Characteristics Input
+    if st.sidebar.checkbox('Ship Characteristics Input', False):
+        ship_characteristics['ship_type'] = st.sidebar.selectbox('Ship Type',
+                                                                 ['Container Ship', 'Tanker', 'Bulk Carrier',
+                                                                  'Fishing Vessel'])
+        ship_characteristics['age_years'] = st.sidebar.number_input('Age (years)',
+                                                                    value=ship_characteristics['age_years'],
+                                                                    min_value=1, step=1)
+        ship_characteristics['size_meters']['length'] = st.sidebar.number_input('Length (meters)', value=
+        ship_characteristics['size_meters']['length'], min_value=1, step=1)
+        ship_characteristics['size_meters']['width'] = st.sidebar.number_input('Width (meters)', value=
+        ship_characteristics['size_meters']['width'], min_value=1, step=1)
+        ship_characteristics['size_meters']['draft'] = st.sidebar.number_input('Draft (meters)', value=
+        ship_characteristics['size_meters']['draft'], min_value=1, step=1)
+        ship_characteristics['gross_tonnage'] = st.sidebar.number_input('Gross Tonnage',
+                                                                        value=ship_characteristics['gross_tonnage'],
+                                                                        min_value=1, step=1)
+        ship_characteristics['engine_power_hp'] = st.sidebar.number_input('Engine Power (HP)',
+                                                                          value=ship_characteristics['engine_power_hp'],
+                                                                          min_value=1, step=1)
+        ship_characteristics['cargo_capacity_tons'] = st.sidebar.number_input('Cargo Capacity (tons)',
+                                                                              value=ship_characteristics[
+                                                                                  'cargo_capacity_tons'], min_value=1,
+                                                                              step=1)
+
+    # Valuation Weights Configuration
+    if st.sidebar.checkbox('Valuation Weights Configuration', False):
+        valuation_weights['age_weight'] = st.sidebar.number_input('Age Weight', value=valuation_weights['age_weight'],
+                                                                  min_value=0.0, step=0.0001, format='%f')
+        # ... [Repeat for other valuation weights using the same format]
+
+        valuation_weights['size_weight'] = st.sidebar.number_input('Size Weight',
+                                                                   value=valuation_weights['size_weight'],
+                                                                   min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['condition_weight'] = st.sidebar.number_input('Condition Weight',
+                                                                        value=valuation_weights['condition_weight'],
+                                                                        min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['market_data_weight'] = st.sidebar.number_input('Market Data Weight',
+                                                                          value=valuation_weights['market_data_weight'],
+                                                                          min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['location_weight'] = st.sidebar.number_input('Location Weight',
+                                                                       value=valuation_weights['location_weight'],
+                                                                       min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['economic_factors_weight'] = st.sidebar.number_input('Economic Factors Weight',
+                                                                               value=valuation_weights[
+                                                                                   'economic_factors_weight'],
+                                                                               min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['compliance_weight'] = st.sidebar.number_input('Compliance Weight',
+                                                                         value=valuation_weights['compliance_weight'],
+                                                                         min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['special_features_weight'] = st.sidebar.number_input('Special Features Weight',
+                                                                               value=valuation_weights[
+                                                                                   'special_features_weight'],
+                                                                               min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['ownership_history_weight'] = st.sidebar.number_input('Ownership History Weight',
+                                                                                value=valuation_weights[
+                                                                                    'ownership_history_weight'],
+                                                                                min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['risk_assessment_weight'] = st.sidebar.number_input('Risk Assessment Weight',
+                                                                              value=valuation_weights[
+                                                                                  'risk_assessment_weight'],
+                                                                              min_value=0.0, step=0.0001, format='%f')
+        valuation_weights['discount_rate'] = st.sidebar.number_input('Discount Rate',
+                                                                     value=valuation_weights['discount_rate'],
+                                                                     min_value=0.0, step=0.0001, format='%f')
     if st.button('Calculate Valuation'):
         ship_valuation = value_ship(ship_characteristics, condition_and_maintenance, market_data,
-                             geographic_location, economic_factors, regulatory_compliance,
-                             special_features, ownership_history, valuation_weights)
+                                    geographic_location, economic_factors, regulatory_compliance,
+                                    special_features, ownership_history, valuation_weights)
         st.success(f"The estimated value of the ship is ${ship_valuation:,.2f}.")
 
 
