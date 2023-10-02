@@ -57,78 +57,42 @@ ownership_history = {
 def value_ship(ship_characteristics, condition_and_maintenance, market_data,
                geographic_location, economic_factors, regulatory_compliance,
                special_features, ownership_history, valuation_weights):
-    """
-    Estimate the value of a ship based on various factors and weights.
-    """
-
-    # Age-based valuation (linear depreciation)
+    # Calculate age-based valuation
     age_valuation = (1 - (ship_characteristics['age_years'] / 30)) * valuation_weights['age_weight']
 
-    # Size-based valuation
-    size_factor = {
-        'Container Ship': 0.08,
-        'Tanker': 0.1,
-        'Bulk Carrier': 0.07,
-        'Fishing Vessel': 0.05
-    }
-    size_valuation = (ship_characteristics['gross_tonnage'] / 100000) * size_factor.get(
-        ship_characteristics['ship_type'], 0) * valuation_weights['size_weight']
+    # Calculate size-based valuation
+    size_valuation = (ship_characteristics['gross_tonnage'] / 100000) * valuation_weights['size_weight']
 
-    # Condition-based valuation
-    condition_valuation = {
-                              'Excellent': 0.1,
-                              'Good': 0.07,
-                              'Fair': 0.03,
-                              'Poor': 0.01
-                          }.get(condition_and_maintenance['inspection_report'], 0) * valuation_weights[
-                              'condition_weight']
+    # Calculate condition-based valuation (subjective assessment)
+    condition_valuation = valuation_weights['condition_weight']
 
-    # Market data-based valuation (DCF)
-    avg_annual_cash_flow = market_data['historical_sales_data'][0] * 0.1  # Assume 10% of the initial sale price
-    dcf_valuation = (avg_annual_cash_flow / (1 + valuation_weights['discount_rate']) ** ship_characteristics[
-        'age_years']) * valuation_weights['market_data_weight']
+    # Calculate market data-based valuation (based on historical sales data)
+    average_sale_price = np.mean(market_data['historical_sales_data'])
+    market_valuation = (ship_characteristics['cargo_capacity_tons'] / 1000) * (
+            ship_characteristics['engine_power_hp'] / 10000) * (average_sale_price / 1000000) * valuation_weights[
+                           'market_data_weight']
 
-    # Location-based valuation
-    location_factor = {
-        'Port of Los Angeles, USA': 1.05,
-        'Singapore Port': 1.03,
-        'Rotterdam Port': 1.02,
-        'Other': 1.0
-    }
-    location_valuation = location_factor.get(geographic_location['location'], 1.0) * valuation_weights[
-        'location_weight']
+    # Calculate location-based valuation (simple geographic factor)
+    location_valuation = valuation_weights['location_weight']
 
-    # Economic factors-based valuation
-    economic_valuation = {
-                             'Stable': 0.1,
-                             'Moderate': 0.05,
-                             'Unstable': 0.02
-                         }.get(economic_factors['economic_indicators'], 0) * valuation_weights[
-                             'economic_factors_weight']
+    # Calculate economic factors-based valuation (simple economic stability factor)
+    economic_valuation = valuation_weights['economic_factors_weight']
 
-    # Compliance-based valuation
-    compliance_valuation = {
-                               'Fully compliant with international regulations.': 0.1,
-                               'Partial compliance with minor issues.': 0.05,
-                               'Non-compliant with significant issues.': 0.02
-                           }.get(regulatory_compliance['compliance_status'], 0) * valuation_weights['compliance_weight']
+    # Calculate compliance-based valuation (simple compliance factor)
+    compliance_valuation = valuation_weights['compliance_weight']
 
-    # Special features-based valuation
-    special_features_valuation = (int(special_features['advanced_navigational_system']) * 0.03 +
-                                  int(special_features['eco_friendly_equipment']) * 0.02) * valuation_weights[
-                                     'special_features_weight']
+    # Calculate special features-based valuation (subjective assessment)
+    special_features_valuation = valuation_weights['special_features_weight']
 
-    # Ownership history-based valuation
-    ownership_valuation = len(ownership_history['previous_owners']) * 0.01 * valuation_weights[
-        'ownership_history_weight']
+    # Calculate ownership history-based valuation (subjective assessment)
+    ownership_history_valuation = valuation_weights['ownership_history_weight']
 
-    # Calculate the total estimated value
-    estimated_value = (age_valuation + size_valuation + condition_valuation +
-                       dcf_valuation + location_valuation + economic_valuation +
-                       compliance_valuation + special_features_valuation +
-                       ownership_valuation) * np.mean(market_data['historical_sales_data'])
+    # Total ship valuation
+    total_valuation = (age_valuation + size_valuation + condition_valuation + market_valuation +
+                       location_valuation + economic_valuation + compliance_valuation +
+                       special_features_valuation + ownership_history_valuation)
 
-    return estimated_value
+    return total_valuation
 
 
 # print(f"The estimated value of the ship is: ${estimated_value:,.2f}")
@@ -151,14 +115,12 @@ def main():
         'age_weight': 0.0001,
         'size_weight': 0.0001,
         'condition_weight': 0.0001,
-        'market_data_weight': 0.00015,
+        'market_data_weight': 0.0015,
         'location_weight': 0.0005,
         'economic_factors_weight': 0.0005,
         'compliance_weight': 0.0005,
-        'special_features_weight': 0.0001,
-        'ownership_history_weight': 0.0001,
-        'risk_assessment_weight': 0.0001,
-        'discount_rate': 0.0008
+        'special_features_weight': 0.0003,
+        'ownership_history_weight': 0.0004
     }
 
     # Ship Characteristics Input
@@ -190,7 +152,6 @@ def main():
     if st.sidebar.checkbox('Valuation Weights Configuration', False):
         valuation_weights['age_weight'] = st.sidebar.number_input('Age Weight', value=valuation_weights['age_weight'],
                                                                   min_value=0.0, step=0.0001, format='%f')
-        # ... [Repeat for other valuation weights using the same format]
 
         valuation_weights['size_weight'] = st.sidebar.number_input('Size Weight',
                                                                    value=valuation_weights['size_weight'],
@@ -219,18 +180,12 @@ def main():
                                                                                 value=valuation_weights[
                                                                                     'ownership_history_weight'],
                                                                                 min_value=0.0, step=0.0001, format='%f')
-        valuation_weights['risk_assessment_weight'] = st.sidebar.number_input('Risk Assessment Weight',
-                                                                              value=valuation_weights[
-                                                                                  'risk_assessment_weight'],
-                                                                              min_value=0.0, step=0.0001, format='%f')
-        valuation_weights['discount_rate'] = st.sidebar.number_input('Discount Rate',
-                                                                     value=valuation_weights['discount_rate'],
-                                                                     min_value=0.0, step=0.0001, format='%f')
+
     if st.button('Calculate Valuation'):
         ship_valuation = value_ship(ship_characteristics, condition_and_maintenance, market_data,
                                     geographic_location, economic_factors, regulatory_compliance,
                                     special_features, ownership_history, valuation_weights)
-        st.success(f"The estimated value of the ship is ${ship_valuation:,.2f}.")
+        st.success(f"The estimated value of the ship is ${ship_valuation:,.2f} million.")
 
 
 if __name__ == "__main__":
