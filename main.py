@@ -122,6 +122,13 @@ def main():
         'special_features_weight': 0.0003,
         'ownership_history_weight': 0.0004
     }
+    sales_data_input = st.text_input("Enter historical sales data (comma-separated values):",
+                                     "75000000, 70000000, 72000000")
+    try:
+        market_data['historical_sales_data'] = [int(x.strip()) for x in sales_data_input.split(',')]
+    except ValueError:
+        st.error("Please enter valid comma-separated numbers for historical sales data.")
+        return
 
     # Ship Characteristics Input
     if st.sidebar.checkbox('Ship Characteristics Input', False):
